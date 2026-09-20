@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 function Navbar() {
   return (
@@ -10,36 +10,72 @@ function Navbar() {
 
       <div>
 
-        <Link to="/">
+        <NavLink
+          to="/"
+          className={({ isActive }) =>
+            isActive ? "nav-link active" : "nav-link"
+          }
+        >
           🏠 Dashboard
-        </Link>
+        </NavLink>
 
         {" | "}
 
-        <Link to="/accounts">
+        <NavLink
+          to="/accounts"
+          className={({ isActive }) =>
+            isActive ? "nav-link active" : "nav-link"
+          }
+        >
           💳 Accounts
-        </Link>
+        </NavLink>
 
         {" | "}
 
-        <Link to="/payments">
+        <NavLink
+          to="/payments"
+          className={({ isActive }) =>
+            isActive ? "nav-link active" : "nav-link"
+          }
+        >
           💸 Send Money
-        </Link>
-
-	  {" | "}
-	  
-        <Link to="/recharge">📱 Recharge</Link>
+        </NavLink>
 
         {" | "}
 
-        <Link to="/transactions">
+        <NavLink
+          to="/recharge"
+          className={({ isActive }) =>
+            isActive ? "nav-link active" : "nav-link"
+          }
+        >
+          📱 Recharge
+        </NavLink>
+
+        {" | "}
+
+        <NavLink
+          to="/transactions"
+          className={({ isActive }) =>
+            isActive ? "nav-link active" : "nav-link"
+          }
+        >
           📋 Transactions
-        </Link>
+        </NavLink>
 
       </div>
 
       <div>
-        👤 Profile
+
+        <NavLink
+          to="/profile"
+          className={({ isActive }) =>
+            isActive ? "nav-link active" : "nav-link"
+          }
+        >
+          👤 Profile
+        </NavLink>
+
       </div>
 
     </nav>

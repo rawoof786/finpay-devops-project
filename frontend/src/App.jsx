@@ -7,6 +7,7 @@ import Accounts from "./pages/Accounts";
 import Payments from "./pages/Payments";
 import Recharge from "./pages/Recharge";
 import Transactions from "./pages/Transactions";
+import Profile from "./pages/Profile";
 
 function App() {
   return (
@@ -38,6 +39,11 @@ function App() {
           <Route
             path="/transactions"
             element={<Transactions />}
+          />
+
+          <Route
+            path="/profile"
+            element={<Profile />}
           />
         </Routes>
       </main>

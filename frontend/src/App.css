@@ -12,6 +12,16 @@ body {
 .app {
   min-height: 100vh;
 }
+.nav-link {
+  text-decoration: none;
+  color: inherit;
+  padding: 5px 10px;
+}
+
+.nav-link.active {
+  font-weight: bold;
+  color: #007bff;
+}
 
 .navbar {
   height: 70px;
