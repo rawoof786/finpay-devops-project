@@ -13,6 +13,10 @@ public class Account {
 
     private String customerName;
 
+    private String bankName;
+
+    private String accountType;
+
     private double balance;
 
     private String status;
@@ -23,11 +27,15 @@ public class Account {
     public Account(
             String accountNumber,
             String customerName,
+            String bankName,
+            String accountType,
             double balance,
             String status) {
 
         this.accountNumber = accountNumber;
         this.customerName = customerName;
+        this.bankName = bankName;
+        this.accountType = accountType;
         this.balance = balance;
         this.status = status;
     }
@@ -50,6 +58,22 @@ public class Account {
 
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
+    }
+
+    public String getBankName() {
+        return bankName;
+    }
+
+    public void setBankName(String bankName) {
+        this.bankName = bankName;
+    }
+
+    public String getAccountType() {
+        return accountType;
+    }
+
+    public void setAccountType(String accountType) {
+        this.accountType = accountType;
     }
 
     public double getBalance() {
