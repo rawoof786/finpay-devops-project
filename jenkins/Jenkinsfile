@@ -1,0 +1,68 @@
+pipeline {
+
+    agent any
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build Account Service') {
+            steps {
+                sh '''
+                    cd account-service
+                    mvn clean package -DskipTests
+                '''
+            }
+        }
+
+        stage('Build Payment Service') {
+            steps {
+                sh '''
+                    cd payment-service
+                    mvn clean package -DskipTests
+                '''
+            }
+        }
+
+        stage('Build Transaction Service') {
+            steps {
+                sh '''
+                    cd transaction-service
+                    mvn clean package -DskipTests
+                '''
+            }
+        }
+
+        stage('Build User Service') {
+            steps {
+                sh '''
+                    cd user-service
+                    mvn clean package -DskipTests
+                '''
+            }
+        }
+
+        stage('Verify Artifacts') {
+            steps {
+                sh '''
+                    echo "Generated JAR files:"
+                    find . -path "*/target/*.jar" -type f
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'FinPay CI Build Successful'
+        }
+
+        failure {
+            echo 'FinPay CI Build Failed'
+        }
+    }
+}
