@@ -49,7 +49,7 @@ pipeline {
         stage('Verify Artifacts') {
             steps {
                 sh '''
-                    echo "Generated JAR files:"
+                    echo "Generated JAR Files:"
                     find . -path "*/target/*.jar" -type f
                 '''
             }
