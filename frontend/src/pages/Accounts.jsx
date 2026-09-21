@@ -30,33 +30,40 @@ function Accounts() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  const loadAccounts = async () => {
-    try {
-      setLoading(true);
-      setError("");
-
-      const response = await fetch(API_URL);
-
-      if (!response.ok) {
-        throw new Error(
-          `Failed to load accounts. HTTP ${response.status}`
-        );
-      }
-
-      const data = await response.json();
-
-      setAccounts(data);
-    } catch (err) {
-      setError(
-        `Unable to load accounts: ${err.message}`
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    let cancelled = false;
+
+    const loadAccounts = async () => {
+      try {
+        const response = await fetch(API_URL);
+
+        if (!response.ok) {
+          throw new Error(
+            `Failed to load accounts. HTTP ${response.status}`
+          );
+        }
+
+        const data = await response.json();
+
+        if (!cancelled) {
+          setAccounts(data);
+          setLoading(false);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(
+            `Unable to load accounts: ${err.message}`
+          );
+          setLoading(false);
+        }
+      }
+    };
+
     loadAccounts();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const clearForm = () => {
