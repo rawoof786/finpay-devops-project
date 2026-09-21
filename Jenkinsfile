@@ -1,35 +1,81 @@
 pipeline {
-    agent any
+
+    agent {
+        label 'finpay-agent'
+    }
 
     stages {
 
+        stage('Environment') {
+            steps {
+                sh '''
+                    echo "========== HOST =========="
+                    hostname
+
+                    echo "========== USER =========="
+                    whoami
+
+                    echo "========== JAVA =========="
+                    java -version
+
+                    echo "========== MAVEN =========="
+                    mvn -version
+
+                    echo "========== NODE =========="
+                    node -v
+
+                    echo "========== NPM =========="
+                    npm -v
+
+                    echo "========== GIT =========="
+                    git --version
+                '''
+            }
+        }
+
         stage('Checkout') {
             steps {
-                echo 'Checking out FinPay source code'
+                checkout scm
             }
         }
 
-        stage('Build') {
+        stage('Build Backend') {
             steps {
-                echo 'Building FinPay application'
+                sh '''
+                    cd user-service
+                    mvn clean package
+
+                    cd ../account-service
+                    mvn clean package
+
+                    cd ../payment-service
+                    mvn clean package
+
+                    cd ../transaction-service
+                    mvn clean package
+                '''
             }
         }
 
-        stage('Test') {
+        stage('Build Frontend') {
             steps {
-                echo 'Running tests'
+                sh '''
+                    cd frontend
+                    npm ci
+                    npm run lint
+                    npm run build
+                '''
             }
         }
-
     }
 
     post {
         success {
-            echo 'FinPay pipeline completed successfully'
+            echo 'FinPay CI SUCCESS'
         }
 
         failure {
-            echo 'FinPay pipeline failed'
+            echo 'FinPay CI FAILED'
         }
     }
 }
