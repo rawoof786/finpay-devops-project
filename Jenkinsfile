@@ -1,3 +1,4 @@
+cat > Jenkinsfile <<'EOF'
 pipeline {
 
     agent any
@@ -150,15 +151,92 @@ pipeline {
                 }
             }
         }
+
+        stage('Test Deployment SSH') {
+            steps {
+                sshagent(['finpay-deployment-ssh']) {
+                    sh '''
+                        ssh -o StrictHostKeyChecking=no ubuntu@172.31.10.30 '
+                            echo "========== SSH SUCCESS =========="
+                            hostname
+                            hostname -I
+                            docker --version
+                            docker compose version
+                        '
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy to Server') {
+            steps {
+                sshagent(['finpay-deployment-ssh']) {
+                    withCredentials([
+                        usernamePassword(
+                            credentialsId: 'dockerhub-creds',
+                            usernameVariable: 'DOCKER_USERNAME',
+                            passwordVariable: 'DOCKER_PASSWORD'
+                        )
+                    ]) {
+                        sh '''
+                            ssh -o StrictHostKeyChecking=no ubuntu@172.31.10.30 "
+                                echo '$DOCKER_PASSWORD' | docker login \
+                                    -u '$DOCKER_USERNAME' \
+                                    --password-stdin
+
+                                cd /opt/finpay
+
+                                docker compose pull
+
+                                docker compose up -d
+
+                                docker compose ps
+
+                                docker logout
+                            "
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Health Check') {
+            steps {
+                sshagent(['finpay-deployment-ssh']) {
+                    sh '''
+                        ssh -o StrictHostKeyChecking=no ubuntu@172.31.10.30 '
+                            echo "========== DEPLOYMENT STATUS =========="
+
+                            cd /opt/finpay
+
+                            docker compose ps
+
+                            echo "========== USER SERVICE =========="
+                            curl -I http://localhost:8081 || true
+
+                            echo "========== ACCOUNT SERVICE =========="
+                            curl -I http://localhost:8082 || true
+
+                            echo "========== PAYMENT SERVICE =========="
+                            curl -I http://localhost:8084 || true
+
+                            echo "========== TRANSACTION SERVICE =========="
+                            curl -I http://localhost:8083 || true
+                        '
+                    '''
+                }
+            }
+        }
     }
 
     post {
+
         success {
-            echo '========== FINPAY CI SUCCESS =========='
+            echo '========== FINPAY CI/CD SUCCESS =========='
         }
 
         failure {
-            echo '========== FINPAY CI FAILED =========='
+            echo '========== FINPAY CI/CD FAILED =========='
         }
 
         always {
@@ -166,3 +244,4 @@ pipeline {
         }
     }
 }
+EOF
