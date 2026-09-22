@@ -87,7 +87,6 @@ pipeline {
             }
         }
 
-<<<<<<< HEAD
         stage('Docker Build') {
             steps {
                 sh '''
@@ -110,53 +109,50 @@ pipeline {
             steps {
                 sh '''
                     echo "========== FINPAY DOCKER IMAGES =========="
-
                     docker images | grep finpay
                 '''
             }
         }
-=======
+
         stage('Docker Push') {
             steps {
-            withCredentials([
-               usernamePassword(
-                  credentialsId: 'dockerhub-creds',
-                  usernameVariable: 'DOCKER_USERNAME',
-                  passwordVariable: 'DOCKER_PASSWORD'
-            )
-        ]) {
-            sh '''
-                echo "$DOCKER_PASSWORD" | docker login \
-                    -u "$DOCKER_USERNAME" \
-                    --password-stdin
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-creds',
+                        usernameVariable: 'DOCKER_USERNAME',
+                        passwordVariable: 'DOCKER_PASSWORD'
+                    )
+                ]) {
+                    sh '''
+                        echo "$DOCKER_PASSWORD" | docker login \
+                            -u "$DOCKER_USERNAME" \
+                            --password-stdin
 
-                docker tag finpay-user-service:latest \
-                    "$DOCKER_USERNAME/finpay-user-service:latest"
+                        docker tag finpay-user-service:latest \
+                            "$DOCKER_USERNAME/finpay-user-service:latest"
 
-                docker tag finpay-account-service:latest \
-                    "$DOCKER_USERNAME/finpay-account-service:latest"
+                        docker tag finpay-account-service:latest \
+                            "$DOCKER_USERNAME/finpay-account-service:latest"
 
-                docker tag finpay-payment-service:latest \
-                    "$DOCKER_USERNAME/finpay-payment-service:latest"
+                        docker tag finpay-payment-service:latest \
+                            "$DOCKER_USERNAME/finpay-payment-service:latest"
 
-                docker tag finpay-transaction-service:latest \
-                    "$DOCKER_USERNAME/finpay-transaction-service:latest"
+                        docker tag finpay-transaction-service:latest \
+                            "$DOCKER_USERNAME/finpay-transaction-service:latest"
 
-                docker push "$DOCKER_USERNAME/finpay-user-service:latest"
-                docker push "$DOCKER_USERNAME/finpay-account-service:latest"
-                docker push "$DOCKER_USERNAME/finpay-payment-service:latest"
-                docker push "$DOCKER_USERNAME/finpay-transaction-service:latest"
+                        docker push "$DOCKER_USERNAME/finpay-user-service:latest"
+                        docker push "$DOCKER_USERNAME/finpay-account-service:latest"
+                        docker push "$DOCKER_USERNAME/finpay-payment-service:latest"
+                        docker push "$DOCKER_USERNAME/finpay-transaction-service:latest"
 
-                docker logout
-            '''
-       }
-     }
-   }
->>>>>>> 9e63d38 (Add Docker Hub image push)
+                        docker logout
+                    '''
+                }
+            }
+        }
     }
 
     post {
-
         success {
             echo '========== FINPAY CI SUCCESS =========='
         }
