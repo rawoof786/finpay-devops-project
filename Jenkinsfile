@@ -1,8 +1,6 @@
 pipeline {
 
-    agent {
-        label 'finpay-agent'
-    }
+    agent any
 
     stages {
 
