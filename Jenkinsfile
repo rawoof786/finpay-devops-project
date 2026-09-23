@@ -141,7 +141,6 @@ post {
         echo 'FinPay CI FAILED'
     }
 }
-```
 
 }
 
