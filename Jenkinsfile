@@ -84,6 +84,19 @@ pipeline {
         }
     }
 }
+    stage('Test SSH to Nginx') {
+    steps {
+        sshagent(['ubuntu']) {
+            sh '''
+                echo "========== SSH TEST =========="
+
+                ssh -o StrictHostKeyChecking=no \
+                    ubuntu@172.31.10.30 \
+                    "hostname && whoami && ls -ld /tmp/finpay-dist"
+            '''
+        }
+    }
+}
     }
 
     post {
