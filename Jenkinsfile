@@ -1,146 +1,144 @@
 pipeline {
 
-agent any
+    agent any
 
-stages {
+    stages {
 
-    stage('Environment') {
-        steps {
-            sh '''
-                echo "========== HOST =========="
-                hostname
-
-                echo "========== USER =========="
-                whoami
-
-                echo "========== JAVA =========="
-                java -version
-
-                echo "========== MAVEN =========="
-                mvn -version
-
-                echo "========== NODE =========="
-                node -v
-
-                echo "========== NPM =========="
-                npm -v
-
-                echo "========== GIT =========="
-                git --version
-            '''
-        }
-    }
-
-    stage('Checkout') {
-        steps {
-            checkout scm
-        }
-    }
-
-    stage('Build Backend') {
-        steps {
-            sh '''
-                echo "========== USER SERVICE =========="
-                cd user-service
-                mvn clean package
-
-                echo "========== ACCOUNT SERVICE =========="
-                cd ../account-service
-                mvn clean package
-
-                echo "========== PAYMENT SERVICE =========="
-                cd ../payment-service
-                mvn clean package
-
-                echo "========== TRANSACTION SERVICE =========="
-                cd ../transaction-service
-                mvn clean package
-
-                echo "========== BACKEND BUILD SUCCESS =========="
-            '''
-        }
-    }
-
-    stage('Build Frontend') {
-        steps {
-            sh '''
-                echo "========== FRONTEND BUILD =========="
-
-                cd frontend
-
-                npm ci
-                npm run lint
-                npm run build
-
-                echo "========== FRONTEND BUILD SUCCESS =========="
-                ls -lah dist/
-            '''
-        }
-    }
-
-    stage('Deploy Frontend to Nginx') {
-        steps {
-            sshagent(['finpay-deployment-ssh']) {
+        stage('Environment') {
+            steps {
                 sh '''
-                    echo "========== PREPARE REMOTE DIRECTORY =========="
+                    echo "========== HOST =========="
+                    hostname
 
-                    ssh -o StrictHostKeyChecking=no \
-                        ubuntu@172.31.10.30 \
-                        "mkdir -p /tmp/finpay-dist && rm -rf /tmp/finpay-dist/*"
+                    echo "========== USER =========="
+                    whoami
 
-                    echo "========== COPY FRONTEND =========="
+                    echo "========== JAVA =========="
+                    java -version
 
-                    scp -o StrictHostKeyChecking=no -r \
-                        frontend/dist/* \
-                        ubuntu@172.31.10.30:/tmp/finpay-dist/
+                    echo "========== MAVEN =========="
+                    mvn -version
 
-                    echo "========== DEPLOY TO NGINX =========="
+                    echo "========== NODE =========="
+                    node -v
 
-                    ssh -o StrictHostKeyChecking=no \
-                        ubuntu@172.31.10.30 \
-                        "sudo mkdir -p /var/www/finpay && \
-                         sudo rm -rf /var/www/finpay/* && \
-                         sudo cp -r /tmp/finpay-dist/* /var/www/finpay/ && \
-                         sudo chown -R www-data:www-data /var/www/finpay && \
-                         sudo nginx -t && \
-                         sudo systemctl reload nginx"
+                    echo "========== NPM =========="
+                    npm -v
 
-                    echo "========== NGINX DEPLOYMENT SUCCESS =========="
+                    echo "========== GIT =========="
+                    git --version
                 '''
             }
         }
-    }
 
-    stage('Test SSH to Nginx') {
-        steps {
-            sshagent(['finpay-deployment-ssh']) {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build Backend') {
+            steps {
                 sh '''
-                    echo "========== SSH TEST =========="
+                    echo "========== USER SERVICE =========="
+                    cd user-service
+                    mvn clean package
 
-                    ssh -o StrictHostKeyChecking=no \
-                        ubuntu@172.31.10.30 \
-                        "hostname && \
-                         whoami && \
-                         ls -ld /tmp/finpay-dist && \
-                         ls -lah /tmp/finpay-dist"
+                    echo "========== ACCOUNT SERVICE =========="
+                    cd ../account-service
+                    mvn clean package
 
-                    echo "========== SSH TEST SUCCESS =========="
+                    echo "========== PAYMENT SERVICE =========="
+                    cd ../payment-service
+                    mvn clean package
+
+                    echo "========== TRANSACTION SERVICE =========="
+                    cd ../transaction-service
+                    mvn clean package
+
+                    echo "========== BACKEND BUILD SUCCESS =========="
+                '''
+            }
+        }
+
+        stage('Build Frontend') {
+            steps {
+                sh '''
+                    echo "========== FRONTEND BUILD =========="
+
+                    cd frontend
+
+                    npm ci
+                    npm run lint
+                    npm run build
+
+                    echo "========== FRONTEND BUILD SUCCESS =========="
+                    ls -lah dist/
+                '''
+            }
+        }
+
+        stage('Deploy Frontend to Nginx') {
+            steps {
+                sshagent(['finpay-deployment-ssh']) {
+                    sh '''
+                        echo "========== PREPARE REMOTE DIRECTORY =========="
+
+                        ssh -o StrictHostKeyChecking=no \
+                            ubuntu@172.31.10.30 \
+                            "mkdir -p /tmp/finpay-dist && rm -rf /tmp/finpay-dist/*"
+
+                        echo "========== COPY FRONTEND =========="
+
+                        scp -o StrictHostKeyChecking=no -r \
+                            frontend/dist/* \
+                            ubuntu@172.31.10.30:/tmp/finpay-dist/
+
+                        echo "========== DEPLOY TO NGINX =========="
+
+                        ssh -o StrictHostKeyChecking=no \
+                            ubuntu@172.31.10.30 \
+                            "sudo mkdir -p /var/www/finpay && \
+                             sudo rm -rf /var/www/finpay/* && \
+                             sudo cp -r /tmp/finpay-dist/* /var/www/finpay/ && \
+                             sudo chown -R www-data:www-data /var/www/finpay && \
+                             sudo nginx -t && \
+                             sudo systemctl reload nginx"
+
+                        echo "========== NGINX DEPLOYMENT SUCCESS =========="
+                    '''
+                }
+            }
+        }
+
+        stage('Test SSH to Nginx') {
+            steps {
+                sshagent(['finpay-deployment-ssh']) {
+                    sh '''
+                        echo "========== SSH TEST =========="
+
+                        ssh -o StrictHostKeyChecking=no \
+                            ubuntu@172.31.10.30 \
+                            "hostname && \
+                             whoami && \
+                             ls -ld /tmp/finpay-dist && \
+                             ls -lah /tmp/finpay-dist"
+
+                        echo "========== SSH TEST SUCCESS =========="
+                    }
                 }
             }
         }
     }
-}
 
-post {
+    post {
 
-    success {
-        echo 'FinPay CI SUCCESS'
+        success {
+            echo 'FinPay CI SUCCESS'
+        }
+
+        failure {
+            echo 'FinPay CI FAILED'
+        }
     }
-
-    failure {
-        echo 'FinPay CI FAILED'
-    }
 }
-
-}
-
