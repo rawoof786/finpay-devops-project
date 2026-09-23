@@ -126,7 +126,7 @@ stages {
                          ls -lah /tmp/finpay-dist"
 
                     echo "========== SSH TEST SUCCESS =========="
-                '''
+                }
             }
         }
     }
