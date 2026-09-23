@@ -78,7 +78,7 @@ pipeline {
 
         stage('Deploy Frontend to Nginx') {
             steps {
-                sshagent(['ubuntu']) {
+                sshagent(['finpay-deployment-ssh']) {
                     sh '''
                         echo "========== PREPARE REMOTE DIRECTORY =========="
 
@@ -111,7 +111,7 @@ pipeline {
 
         stage('Test SSH to Nginx') {
             steps {
-                sshagent(['ubuntu']) {
+                sshagent(['finpay-deployment-ssh']) {
                     sh '''
                         echo "========== SSH TEST =========="
 
